@@ -21,6 +21,12 @@ class CustomView: UIView {
             self.percentage = percentage
         }
         
+        init(color: UIColor, percentage: Int, textColor: UIColor) {
+            self.color = color
+            self.percentage = percentage
+            self.textColor = textColor
+        }
+        
     }
     
     public var segments:[Segment] = [Segment(color: UIColor.purple, percentage: 20),
@@ -33,27 +39,26 @@ class CustomView: UIView {
     }
     
     private func validateSegments() {
-//        var sum:Int = 0
-//        var valid:Bool = true;
-//
-//        for i in 0...segmentsCount {
-//            if !valid {
-//                segments[i].percentage = 0
-//            }
-//            sum += segments[i].percentage
-//            if sum >= 100 {
-//                valid = false
-//                let diff = sum - 100
-//                segments[i].percentage -= diff
-//            }
-//        }
-//        if sum < 100 {
-//            segments.append(Segment(color: UIColor.cyan, percentage: 100-sum))
-//        }
-//
-//        for segment in segments {
-//            print(segment.percentage)
-//        }
+        var sum:Int = 0
+        var valid:Bool = true;
+        for i in 0...segmentsCount {
+            if !valid {
+                segments[i].percentage = 0
+            }
+            sum += segments[i].percentage
+            if sum >= 100 {
+                valid = false
+                let diff = sum - 100
+                segments[i].percentage -= diff
+            }
+        }
+        if sum < 100 {
+            segments.append(Segment(color: UIColor.cyan, percentage: 100-sum))
+        }
+
+        for segment in segments {
+            print(segment.percentage)
+        }
     }
     
     private var scale:CGFloat = 0.7
@@ -66,12 +71,12 @@ class CustomView: UIView {
     }
     
     
-    private var radiusCircle: CGFloat {
+    /*private var radiusCircle: CGFloat {
         return lineWidth/2
     }
     private var centerCircle: CGPoint {
         return CGPoint(x:bounds.midX + radius, y: bounds.midY)
-    }
+    }*/
     
     
     private func drawSegmnent(number: Int, from start: CGFloat, to end:CGFloat) -> UIBezierPath {
@@ -97,29 +102,33 @@ class CustomView: UIView {
     
     private func drawPercentage(number: Int, at angle: CGFloat) {
         let font = UIFont.systemFont(ofSize: 14)
+        let color = segments[number].textColor
         let attributes = [NSAttributedStringKey.font:font,
-                          NSAttributedStringKey.foregroundColor: UIColor.white]
+                          NSAttributedStringKey.foregroundColor: color]
         let percentageString = NSAttributedString(string: String(segments[number].percentage), attributes: attributes)
+        //TODO: position text better on the circle - after New Year
         let rect = CGRect(x: radius * cos(angle), y: radius * sin(angle), width: 50, height: 50)
         percentageString.draw(in: rect)
     }
     
-    override func draw(_ rect: CGRect) {
-        //validateSegments()
+    private func testDrawNumber() {
         let font = UIFont.systemFont(ofSize: 14)
         ("100" as NSString).draw(at: centerPoint, withAttributes: [NSAttributedStringKey.font:font, NSAttributedStringKey.foregroundColor: UIColor.white])
-        
+    }
+    
+    override func draw(_ rect: CGRect) {
+        //validateSegments()
         var start: Double = 0
+        //drawing segments
         for i in 0..<segmentsCount {
-           
                 let step: Double = (Double.pi*2) * Double(segments[i].percentage) / 100
                 drawSegmnent(number: i, from: CGFloat(start), to: CGFloat(start-step)).stroke()
                 start -= step
-           
-            
         }
         drawRoundnessFirstSegment()
         
+        //drawing numbers
+        //testDrawNumber()
         var angle:Double = 0
         for i in 0...segmentsCount {
             //drawPercentage(number: i, at: CGFloat(angle))
